@@ -1,18 +1,18 @@
 <template>
 	<div class="projects-index">
 
-		<h1>{{ title }}</h1>
+		<h1>{{ project.title }}</h1>
 
 		<!--  -->
 		<div v-if="true" class="row">
 			<div class="col-sm-3">
 				<p>
-					<a :href="image" :data-lightbox="title" :data-title="title">
-						<img :src="image" :alt="title" class="img-responsive center-block">
+					<a :href="project.image" data-lightbox="project-photos" :data-title="project.title">
+						<img :src="project.image" :alt="project.title" class="img-responsive center-block">
 					</a>
 				</p>
 				<p>
-					<a :href="yt_link" target="_blank" class="btn btn-primary btn-sm btn-block">
+					<a :href="project.yt_link" target="_blank" class="btn btn-primary btn-sm btn-block">
 						Play Video
 					</a>
 				</p>
@@ -37,63 +37,59 @@
 					</div>
 					<div class="col-xs-6">
 						<dl>
-							<dt v-if="runtime">Runtime</dt>
-							<dd v-if="runtime">{{ runtime }}</dd>
-							<dt v-if="created_at">Released</dt>
-							<dd v-if="created_at">{{ created_at }}</dd>
+							<dt v-if="project.released">Released</dt>
+							<dd v-if="project.released">{{ project.released }}</dd>
+							<dt v-if="project.runtime">Runtime</dt>
+							<dd v-if="project.runtime">{{ project.runtime }}</dd>
 						</dl>
 					</div>
 				</div>
 
 				<div class="">
-					{{ synopsis }}
+					{{ project.synopsis }}
 				</div>
 
 			</div>
 		</div>
 
 		<!--  -->
-		<h3>Cast/Crew</h3>
+		<h3>Cast &amp; Crew</h3>
 		<div class="table-responsive">
-			<table class="table table-striped table-condensed">
-				<tbody>
-					<tr v-for="cm in crew">
-						<td>
-							<img v-if="cm.person.avatar" :src="cm.person.avatar" :alt="cm.person.name" width="25">
-							<span v-else class="glyphicon glyphicon-user" aria-hidden="true"></span>
-						</td>
-						<td>
-							{{ cm.person.name }}
-						</td>
-						<td> ... </td>
-						<td>
-							{{ cm.role }}
-						</td>
-					</tr>
-				</tbody>
+			<table class="table table-striped">
+
+				<cc-table-body :members="cast"></cc-table-body>
+				<cc-table-body v-if="show_crew" :members="crew"></cc-table-body>
+
+				<a href="#" @click.prevent="show_crew = !show_crew" class="btn btn-text btn-xs">
+					<span v-if="show_crew">Hide</span>
+					<span v-else>Show</span>
+					Crew
+				</a>
 			</table>
 		</div>
 
+
 		<!--  -->
 		<div class="row">
-			<div class="col-sm-6">
+			<div v-if="photos.length > 0" class="col-sm-6">
 				<h3>Photos</h3>
 				<div class="row">
-					<div v-for="n in 6" class="col-xs-4">
-						<p>
-							<a :href="'http://lorempixel.com/640/480/?'+(n+6)" data-lightbox="project-photos">
-								<img :src="'http://lorempixel.com/160/120/?'+(n+6)" alt="" class="img-responsive">
+					<div v-for="photo in photos" class="col-xs-4">
+						<p class="embed-responsive embed-responsive-4by3">
+							<a :href="photo.image" data-lightbox="project-photos" :data-title="photo.title">
+								<img :src="photo.image" :alt="photo.title" class="img-responsive">
 							</a>
 						</p>
 					</div>
 				</div>
 			</div>
-			<div class="col-sm-6">
+
+			<div v-if="videos.length > 0" class="col-sm-6">
 				<h3>Videos</h3>
 				<div class="row">
 					<div v-for="n in 3" class="col-xs-4">
 						<p>
-							<a href="https://www.youtube.com/watch?v=RCn5xrAFh2Q" data-lightbox="project-videos">
+							<a href="#" data-lightbox="project-videos">
 								<img :src="'http://lorempixel.com/160/120/?'+n" alt="" class="img-responsive">
 							</a>
 						</p>
@@ -106,34 +102,55 @@
 </template>
 
 <script>
+import CcTableBody from '@/components/cast_crew/TableBody'
+
 export default {
 	name: 'project-show',
+	components: {
+		'cc-table-body': CcTableBody
+	},
 	data () {
-		// return this.$store.getters.projectById(this.$route.params.id)
 		return {
-			
+			project: this.$store.getters.projectById(this.$route.params.id),
+			show_crew: false
 		}
 	},
 	computed: {
 		director () {
-			return this.$store.getters.personById(this.director_id)
+			return this.$store.getters.personById(this.project.director_id)
 		},
 		producer () {
-			return this.$store.getters.personById(this.producer_id)
+			return this.$store.getters.personById(this.project.producer_id)
 		},
 		writer () {
-			return this.$store.getters.personById(this.writer_id)
+			return this.$store.getters.personById(this.project.writer_id)
 		},
-		crew () {
+		castAndCrew () {
 			return this.$store.getters.rolesOfProject(this.$route.params.id).map( (role) => {
 				return {
 					person: this.$store.getters.personById(role.person_id),
-					role: role.role
+					role: role
 				}
-			}).sort(function(a, b) {
-				var x = a.person.name_last; var y = b.person.name_last
-				return ((x < y) ? -1 : ((x > y) ? 1 : 0))
-			})
+			}).sort(this.sortFunction)
+		},
+		cast () {
+			return this.castAndCrew.filter(c => c.role.is_crew === "FALSE")
+		},
+		crew () {
+			return this.castAndCrew.filter(c => c.role.is_crew === "TRUE")
+		},
+		photos () {
+			return this.$store.getters.photosOfProject(this.$route.params.id)
+		},
+		videos () {
+			// return this.$store.getters.videossOfProject(this.$route.params.id)
+			return []
+		},
+	},
+	methods: {
+		sortFunction (a,b) {
+			var x = a.person.name_last; var y = b.person.name_last
+			return ((x < y) ? -1 : ((x > y) ? 1 : 0))
 		}
 	}
 }

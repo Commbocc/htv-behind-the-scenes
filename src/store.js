@@ -13,14 +13,18 @@ export const store = new Vuex.Store({
 
 		ranges: [
 			// pagination could be used: {... range: `Projects!A${offset}:M${offset+limit}`}
-			{key: 'projects', range: 'Projects!A1:M'},
-			{key: 'people', range: 'People!A1:E'},
-			{key: 'roles', range: 'Roles!A1:E'},
+			{key: 'projects', range: 'Projects!A:ZZ'},
+			{key: 'people', range: 'People!A:ZZ'},
+			{key: 'roles', range: 'Roles!A:ZZ'},
+			{key: 'photos', range: 'Photos!A:ZZ'},
+			{key: 'videos', range: 'Videos!A:ZZ'},
 		],
 
 		projects: [],
 		people: [],
 		roles: [],
+		photos: [],
+		videos: [],
 
 	},
 	actions: {
@@ -33,14 +37,6 @@ export const store = new Vuex.Store({
 			}, error => {
 				console.error(error)
 			})
-			// return new Promise((resolve, reject) => {
-			// 	Vue.http(url).then(response => {
-			// 		// context.commit('setData', response.body.valueRanges)
-			// 		resolve(response)
-			// 	}, error => {
-			// 		reject(error)
-			// 	})
-			// })
 		}
 	},
 	mutations: {
@@ -64,8 +60,13 @@ export const store = new Vuex.Store({
 			return state.people.find(p => parseInt(p.id) === parseInt(id))
 		},
 		rolesOfProject: (state, getters) => (project_id) => {
-			return state.roles.filter( (r) => {
+			return state.roles.filter( r => {
 				return parseInt(r.project_id) === parseInt(project_id)
+			})
+		},
+		photosOfProject: (state, getters) => (project_id) => {
+			return state.photos.filter( p => {
+				return parseInt(p.project_id) === parseInt(project_id)
 			})
 		}
 	}
