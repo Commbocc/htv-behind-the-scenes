@@ -1,0 +1,14 @@
+[
+	{
+		"id": 1,
+		"title": "The Journey Through Hillsborough: 2017 Hiking Spree",
+		"image": "./static/projects/2017-hiking-spree.jpg",
+		"ytLink": "https://youtu.be/QCySu5A0HcQ",
+		"director_id": 1,
+		"producer_id": 2,
+		"writer_id": null,
+		"runtime": null,
+		"created_at": null,
+		"synopsis": "The Inaugural 2017 Hillsborough Hiking Spree"
+	}
+]
