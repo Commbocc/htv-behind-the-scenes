@@ -21,9 +21,9 @@ export default new Router({
 			name: 'ProjectsShow',
 			component: ProjectsShow,
 			beforeEnter: (to, from, next) => {
-				store.dispatch('fetchData').then(()=>{
-					next()
-				})
+				if (!store.state.projects.length) {
+					store.dispatch('fetchData').then(()=>{next()})
+				} else { next() }
 			}
 		},
 		// {

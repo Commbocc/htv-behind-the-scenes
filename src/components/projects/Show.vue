@@ -1,17 +1,22 @@
 <template>
 	<div class="projects-index">
 
-		<h1>{{ project.title }}</h1>
+		<router-link :to="{ name: 'ProjectsIndex' }" class="btn btn-default">
+			<span class="glyphicon glyphicon-menu-left" aria-hidden="true"></span>
+			Projects
+		</router-link>
+
+		<h1 v-if="project.title">{{ project.title }}</h1>
 
 		<!--  -->
-		<div v-if="true" class="row">
+		<div class="row">
 			<div class="col-sm-3">
-				<p>
+				<p v-if="project.image">
 					<a :href="project.image" data-lightbox="project-photos" :data-title="project.title">
 						<img :src="project.image" :alt="project.title" class="img-responsive center-block">
 					</a>
 				</p>
-				<p>
+				<p v-if="project.yt_link">
 					<a :href="project.yt_link" target="_blank" class="btn btn-primary btn-sm btn-block">
 						Play Video
 					</a>
@@ -53,25 +58,26 @@
 		</div>
 
 		<!--  -->
-		<h3>Cast &amp; Crew</h3>
-		<div class="table-responsive">
-			<table class="table table-striped">
+		<div v-if="castAndCrew.length" id="cast-crew">
+			<h3>Cast &amp; Crew</h3>
+			<div class="table-responsive">
+				<table class="table table-striped">
 
-				<cc-table-body :members="cast"></cc-table-body>
-				<cc-table-body v-if="show_crew" :members="crew"></cc-table-body>
+					<cc-table-body :members="cast"></cc-table-body>
+					<cc-table-body v-if="show_crew" :members="crew"></cc-table-body>
 
-				<a href="#" @click.prevent="show_crew = !show_crew" class="btn btn-text btn-xs">
-					<span v-if="show_crew">Hide</span>
-					<span v-else>Show</span>
-					Crew
-				</a>
-			</table>
+					<a href="#" @click.prevent="show_crew = !show_crew" class="btn btn-text btn-xs">
+						<span v-if="show_crew">Hide</span>
+						<span v-else>Show</span>
+						Crew
+					</a>
+				</table>
+			</div>
 		</div>
-
 
 		<!--  -->
 		<div class="row">
-			<div v-if="photos.length > 0" class="col-sm-6">
+			<div v-if="photos.length" class="col-sm-6">
 				<h3>Photos</h3>
 				<div class="row">
 					<div v-for="photo in photos" class="col-xs-4">
@@ -84,7 +90,7 @@
 				</div>
 			</div>
 
-			<div v-if="videos.length > 0" class="col-sm-6">
+			<div v-if="videos.length" class="col-sm-6">
 				<h3>Videos</h3>
 				<div class="row">
 					<div v-for="n in 3" class="col-xs-4">
@@ -157,7 +163,10 @@ export default {
 </script>
 
 <style scoped>
-h1 {
+/*h1 {
+	margin-top: 0;
+}*/
+h2 {
 	margin-top: 0;
 }
 </style>
